@@ -1,0 +1,56 @@
+# here is a comment
+# and another one
+
+alias: &alias
+  alias_key: something
+  another_alias_key: another thing
+
+foo:
+  bar:
+    baz: 'asdf' # just a comment at the end of a line
+    nothing:
+    nullish: null
+
+    'Funny Key': yes
+    'Funny key with : in it': why would you do this
+    # haha im just a silly comment
+
+    0: numeric keys
+    yes: boolean keys
+    2020-01-01: date keys even
+    :symbol: well thats just weird
+    :: is this even valid yaml?
+    ::: what even
+    :::: the hecc
+  array:
+    - one
+    - two
+    - three
+  arrays_of_objects:
+    - foo: asdf
+      bar: qwer
+    - foo: zxcv
+      bar: uipo
+  arrays_of_arrays:
+    -
+      - a
+      - e
+      - i
+    -
+      - x
+      - y # eek is this considered a boolean?? yaml sucks
+      - z
+  aliased: *alias
+  inherit_alias:
+    <<: *alias
+    another_key: blah
+  override_alias:
+    <<: *alias
+    alias_key: something else
+  multiline: |
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Sed quid ages tandem, si utilitas ab amicitia, ut fit saepe,
+    defecerit? An eiusdem modi? Neminem videbis ita laudatum, ut
+    artifex callidus comparandarum voluptatum diceretur.
+
+another_top_level_key: hello

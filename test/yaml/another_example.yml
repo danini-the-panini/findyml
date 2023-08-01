@@ -1,0 +1,7 @@
+foo:
+  bar:
+    baz: 'asdf'
+
+qux:
+  norf:
+    wat: 'qwer'

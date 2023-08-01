@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "findyml"
+
+dir, key = case ARGV.size
+when 1
+  [Dir.pwd, ARGV.last]
+when 2
+  ARGV
+else
+  puts "Usage: #{$0} [path] key"
+  exit(1)
+end
+
+Findyml.find(key, dir:)
