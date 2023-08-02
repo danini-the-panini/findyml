@@ -5,14 +5,23 @@ alias: &alias
   alias_key: something
   another_alias_key: another thing
 
+also:
+  in_another:
+    file: see also another_example.yml
+
 foo:
   bar:
     baz: 'asdf' # just a comment at the end of a line
+  wierdness:
     nothing:
     nullish: null
 
     'Funny Key': yes
     'Funny key with : in it': why would you do this
+    'Funny key with . in it': because reasons
+    asdf.qwer: dotty dot notation
+    .: just a dot?
+    path/to/file: slash path
     # haha im just a silly comment
 
     0: numeric keys
@@ -22,6 +31,8 @@ foo:
     :: is this even valid yaml?
     ::: what even
     :::: the hecc
+    [1,2,3]: array key
+    {foo: bar}: hash key
   array:
     - one
     - two

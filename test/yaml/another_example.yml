@@ -1,7 +1,6 @@
-foo:
-  bar:
-    baz: 'asdf'
+also:
+  in_another:
+    file: hello yes i am duplicate
 
 qux:
-  norf:
-    wat: 'qwer'
+  norf: 'qwer'
