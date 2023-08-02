@@ -27,6 +27,25 @@ class TestFindyml < Minitest::Test
     refute Findyml.deep_key_presence?({ 'foo' => [{ 'bar' => 'baz' }, { 'qux' => 'norf' }] }, ['foo', 2, 'bar'])
   end
 
+  def test_parse_key
+    assert_equal ['foo'],                           Findyml.parse_key('foo')
+    assert_equal ['foo', 'bar'],                    Findyml.parse_key('foo.bar')
+    assert_equal ['foo', 'bar', '0', 'baz'],        Findyml.parse_key('foo.bar.0.baz')
+    assert_equal ['foo', 'bar', 'baz'],             Findyml.parse_key('foo."bar".baz')
+    assert_equal ['foo', 'bar.baz'],                Findyml.parse_key('foo."bar.baz"')
+    assert_equal ['foo', 'bar.baz', 'qux'],         Findyml.parse_key("foo.'bar.baz'.qux")
+    assert_equal ['foo', 'bar baz', 'qux'],         Findyml.parse_key("foo.'bar baz'.qux")
+    assert_equal ['foo', '"bar baz"', 'qux'],       Findyml.parse_key("foo.'\"bar baz\"'.qux")
+    assert_equal ['foo', "bar'bar", "baz'", 'qux'], Findyml.parse_key("foo.bar'bar.baz'.qux")
+    assert_equal ['foo', 'bar"bar', 'baz"', 'qux'], Findyml.parse_key('foo.bar"bar.baz".qux')
+
+    assert_raises { Findyml.parse_key("foo.'bar") }
+    assert_raises { Findyml.parse_key("foo.'bar.baz") }
+    assert_raises { Findyml.parse_key(".foo.bar") } # TODO: might mean "find key anywhere without starting from root" ?
+    assert_raises { Findyml.parse_key("foo.bar.") } # TODO: might mean "find non-terminal key" ?
+    assert_raises { Findyml.parse_key(".foo.bar.") }
+  end
+
   def find
     assert_find_yaml 'foo.bar',               'example.yml'
     assert_find_yaml 'foo.multiline',         'example.yml'
@@ -56,7 +75,7 @@ class TestFindyml < Minitest::Test
     assert_find_yaml "foo.'bar'",     'example.yml'
     assert_find_yaml "foo.'bar'.baz", 'example.yml'
 
-    assert_find_yaml "foo.wierdness.'Funny Key'",              'example.yml'
+    assert_find_yaml "foo.wierdness.'Funny key'",              'example.yml'
     assert_find_yaml "foo.wierdness.'Funny Key with : in it'", 'example.yml'
     assert_find_yaml "foo.wierdness.'Funny Key with . in it'", 'example.yml'
     assert_find_yaml "foo.wierdness.'asdf.qwer'",              'example.yml'
@@ -91,8 +110,8 @@ class TestFindyml < Minitest::Test
   end
 
   def test_alias
-    assert_find_yaml 'foo.alias.alias_key', 'example.yml'
-    assert_find_yaml 'foo.alias.another_alias_key', 'example.yml'
+    assert_find_yaml 'foo.aliased.alias_key', 'example.yml'
+    assert_find_yaml 'foo.aliased.another_alias_key', 'example.yml'
 
     assert_find_yaml 'foo.inherit_alias.alias_key', 'example.yml'
     assert_find_yaml 'foo.inherit_alias.another_alias_key', 'example.yml'

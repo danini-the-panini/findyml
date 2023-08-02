@@ -9,9 +9,7 @@ module Findyml
 
   def self.find(key, dir = Dir.pwd)
     # TODO: cache fast key lookup in a temporary sqlite db?
-    key_path = key.split('.').map { |k|
-      k.match?(/\d+/) ? k.to_i : k
-    }
+    key_path = parse_key(key)
     files = Dir.glob(File.join(dir, '**', '*.yml'))
     files.each do |file|
       # TODO: use YAML.parse to get raw nodes with line numbers
@@ -35,11 +33,38 @@ module Findyml
       return false unless obj.key?(key)
       deep_key_presence?(obj[key], rest)
     when Array then
-      return false unless key.is_a?(Integer)
+      key = Integer(key, exception: false)
+      return false unless key
       return false if key >= obj.size || key < 0
       deep_key_presence?(obj[key], rest)
     else
       false
     end
+  end
+
+  def self.parse_key(key)
+    invalid_key! if key.empty?
+
+    case key
+    when /\A['"]/
+      invalid_key! unless $' =~ /#{$&}/
+
+      quoted_key = $`
+
+      case $'
+      when ''     then [quoted_key]
+      when /\A\./ then [quoted_key, *parse_key($')]
+      else invalid_key!
+      end
+    when /\./
+      invalid_key! if $`.empty?
+      [$`, *parse_key($')]
+    else
+      [key]
+    end
+  end
+
+  def self.invalid_key!
+    raise Error, "invalid key"
   end
 end

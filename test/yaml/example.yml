@@ -16,7 +16,7 @@ foo:
     nothing:
     nullish: null
 
-    'Funny Key': yes
+    'Funny key': yes
     'Funny key with : in it': why would you do this
     'Funny key with . in it': because reasons
     asdf.qwer: dotty dot notation
