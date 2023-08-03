@@ -43,6 +43,20 @@ module Findyml
   end
 
   def self.parse_key(key)
+    pre  = []
+    post = []
+    if key =~ /\A\./
+      key = $'
+      pre<<:*
+    end
+    if key =~ /\.\z/
+      key = $`
+      post<<:*
+    end
+    [*pre, *parse_key_parts(key), *post]
+  end
+
+  def self.parse_key_parts(key)
     invalid_key! if key.empty?
 
     case key
@@ -53,12 +67,12 @@ module Findyml
 
       case $'
       when ''     then [quoted_key]
-      when /\A\./ then [quoted_key, *parse_key($')]
+      when /\A\./ then [quoted_key, *parse_key_parts($')]
       else invalid_key!
       end
     when /\./
       invalid_key! if $`.empty?
-      [$`, *parse_key($')]
+      [$`, *parse_key_parts($')]
     else
       [key]
     end
