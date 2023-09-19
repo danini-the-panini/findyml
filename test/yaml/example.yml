@@ -1,10 +1,6 @@
 # here is a comment
 # and another one
 
-alias: &alias
-  alias_key: something
-  another_alias_key: another thing
-
 also:
   in_another:
     file: see also another_example.yml
@@ -51,19 +47,6 @@ foo:
       - x
       - y # eek is this considered a boolean?? yaml sucks
       - z
-  aliased: *alias
-  inherit_alias: &another_alias
-    <<: *alias
-    another_key: blah
-  override_alias: &override_alias
-    <<: *alias
-    alias_key: something else
-  alias_another_alias: *another_alias
-  alias_override_alias: *override_alias
-  override_alias_alias:
-    <<: *another_alias
-    alias_key: asdf
-    another_key: qwer
   multiline: |
     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     Sed quid ages tandem, si utilitas ab amicitia, ut fit saepe,

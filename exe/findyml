@@ -4,8 +4,6 @@
 require "bundler/setup"
 require "findyml"
 
-p ARGV
-
 dir, key = case ARGV.size
 when 1
   [Dir.pwd, ARGV.last]

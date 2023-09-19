@@ -1,0 +1,16 @@
+a:
+  b:
+    c:
+      d:
+        e:
+          f:
+            g:
+              h: asdf
+
+FOO:
+  BAR:
+    QUX:
+      FOO:
+        BAR:
+          BAZ:
+            QUX: norf

@@ -1,0 +1,18 @@
+alias: &alias
+  alias_key: something
+  another_alias_key: another thing
+
+foo_aliases:
+  aliased: *alias
+  inherit_alias: &another_alias
+    <<: *alias
+    another_key: blah
+  override_alias: &override_alias
+    <<: *alias
+    alias_key: something else
+  alias_another_alias: *another_alias
+  alias_override_alias: *override_alias
+  override_alias_alias:
+    <<: *another_alias
+    alias_key: asdf
+    another_key: qwer
