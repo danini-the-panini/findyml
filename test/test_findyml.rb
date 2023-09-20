@@ -95,26 +95,26 @@ class TestFindyml < Minitest::Test
   end
 
   def test_alias
-    # assert_find_yaml 'foo_aliases.aliased.alias_key',         'aliases.yml:2' # (6)
-    # assert_find_yaml 'foo_aliases.aliased.another_alias_key', 'aliases.yml:3' # (54)
+    assert_find_yaml 'foo_aliases.aliased.alias_key',         'aliases.yml:2(6)'
+    assert_find_yaml 'foo_aliases.aliased.another_alias_key', 'aliases.yml:3(6)'
 
-    # assert_find_yaml 'foo_aliases.inherit_alias.alias_key',         'aliases.yml:2' # (56)
-    # assert_find_yaml 'foo_aliases.inherit_alias.another_alias_key', 'aliases.yml:3' # (56)
-    # assert_find_yaml 'foo_aliases.inherit_alias.another_key',       'aliases.yml:9'
+    assert_find_yaml 'foo_aliases.inherit_alias.alias_key',         'aliases.yml:2(8)'
+    assert_find_yaml 'foo_aliases.inherit_alias.another_alias_key', 'aliases.yml:3(8)'
+    assert_find_yaml 'foo_aliases.inherit_alias.another_key',       'aliases.yml:9'
 
     assert_find_yaml 'foo_aliases.override_alias.alias_key',         'aliases.yml:12'
-    # assert_find_yaml 'foo_aliases.override_alias.another_alias_key', 'aliases.yml:3' # (59)
+    assert_find_yaml 'foo_aliases.override_alias.another_alias_key', 'aliases.yml:3(11)'
 
-    # assert_find_yaml 'foo_aliases.alias_another_alias.alias_key',         'aliases.yml:2' # (55)(61)
-    # assert_find_yaml 'foo_aliases.alias_another_alias.another_alias_key', 'aliases.yml:3' # (55)(61)
-    # assert_find_yaml 'foo_aliases.alias_another_alias.another_key',       'aliases.yml:9' # (61)
+    assert_find_yaml 'foo_aliases.alias_another_alias.alias_key',         'aliases.yml:2(8)(13)'
+    assert_find_yaml 'foo_aliases.alias_another_alias.another_alias_key', 'aliases.yml:3(8)(13)'
+    assert_find_yaml 'foo_aliases.alias_another_alias.another_key',       'aliases.yml:9(13)'
 
-    # assert_find_yaml 'foo_aliases.alias_override_alias.alias_key',         'aliases.yml:12' # (62)
-    # assert_find_yaml 'foo_aliases.alias_override_alias.another_alias_key', 'aliases.yml:3' # (58)(62)
+    assert_find_yaml 'foo_aliases.alias_override_alias.alias_key',         'aliases.yml:12(14)'
+    assert_find_yaml 'foo_aliases.alias_override_alias.another_alias_key', 'aliases.yml:3(11)(14)'
 
-    # assert_find_yaml 'foo_aliases.override_alias_alias.alias_key',         'aliases.yml:17'
-    # assert_find_yaml 'foo_aliases.override_alias_alias.another_alias_key', 'aliases.yml:3' # (55)(64)
-    # assert_find_yaml 'foo_aliases.override_alias_alias.another_key',       'aliases.yml:18'
+    assert_find_yaml 'foo_aliases.override_alias_alias.alias_key',         'aliases.yml:17'
+    assert_find_yaml 'foo_aliases.override_alias_alias.another_alias_key', 'aliases.yml:3(8)(16)'
+    assert_find_yaml 'foo_aliases.override_alias_alias.another_key',       'aliases.yml:18'
   end
 
   def test_partial_match

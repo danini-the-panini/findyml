@@ -7,7 +7,7 @@ require_relative "findyml/version"
 module Findyml
   class Error < StandardError; end
 
-  Key = Struct.new(:node, :path, :terminal) do
+  Key = Struct.new(:node, :path, :terminal, :alias_path) do
     def terminal? = terminal
 
     def match?(key_path)
@@ -43,10 +43,7 @@ module Findyml
     end
 
     def line
-      case node
-      when Integer then nil
-      else node.start_line
-      end
+      node.start_line + 1
     end
 
     def to_s
@@ -58,6 +55,10 @@ module Findyml
       when Psych::Nodes::Sequence
         "[#{node.children.map { KeyNode.new(_1).to_s }.join(',')}]"
       end
+    end
+
+    def inspect
+      "#<Findyml::KeyNode @node=#{self}>"
     end
   end
 
@@ -87,24 +88,16 @@ module Findyml
       all_nodes = @yaml.children.map { construct_nodes(_1) }
 
       all_nodes.each do |nodes, _|
-        puts "---"
-        print_nodes(nodes)
         extract_nodes(nodes, &block)
       end
     end
 
-    def print_nodes(nodes, indent='')
-      nodes.each do |key_node, (children, yaml_node)|
-        puts "#{indent}#{key_node}: #{children ? '...' : 'X'}"
-        print_nodes(children, indent + '  ') if children
-      end
-    end
-
-    def extract_nodes(nodes, path=[], &block)
-      nodes.each do |key_node, (children, yaml_node)|
+    def extract_nodes(nodes, path=[], alias_path=[], &block)
+      nodes.each do |key_node, (children, yaml_node, alias_node)|
         new_path = [*path, key_node.to_s]
-        yield Key.new(key_node.node, new_path, children.nil?)
-        extract_nodes(children, new_path, &block) if children
+        new_alias_path = [*alias_path, *alias_node]
+        yield Key.new(key_node.node, new_path, children.nil?, new_alias_path)
+        extract_nodes(children, new_path, new_alias_path, &block) if children
       end
     end
 
@@ -120,7 +113,9 @@ module Findyml
             if key.is_a?(Psych::Nodes::Scalar) && key.value == '<<'
               h.merge!(construct_nodes(node).first)
             else
-              h[KeyNode.new(key)] = construct_nodes(node)
+              key_node = KeyNode.new(key)
+              h.delete(key_node)
+              h[key_node] = construct_nodes(node)
             end
           }
       when Psych::Nodes::Sequence
@@ -131,20 +126,16 @@ module Findyml
       when Psych::Nodes::Scalar
         nil
       when Psych::Nodes::Alias
-        puts "vvvvv ALIAS:"
-        p current_node.anchor
-        puts KeyNode.new(@anchors[current_node.anchor].last).to_s
-        print_nodes(@anchors[current_node.anchor].first)
-        puts "^^^^^"
-        return @anchors[current_node.anchor] # TODO: deep dup and re-jig?
+        a_nodes, anchor = @anchors[current_node.anchor]
+        return [a_nodes.transform_values { |(a, b, c)| [a, b, [*c, current_node]] }, anchor]
       end
 
       case current_node
       when Psych::Nodes::Mapping, Psych::Nodes::Sequence, Psych::Nodes::Scalar
-        @anchors[current_node.anchor] = [nodes, current_node] if current_node.anchor
+        @anchors[current_node.anchor] = [nodes, current_node, []] if current_node.anchor
       end
 
-      [nodes, current_node]
+      [nodes, current_node, []]
     end
 
     def to_s
@@ -162,7 +153,7 @@ module Findyml
     files = Dir.glob(File.join(dir, '**', '*.yml'))
     files.each do |file|
       FileExtractor.call(file) do |k|
-        yield "#{file}:#{k.line}" if k.match?(key_path)
+        yield "#{file}:#{k.line}#{k.alias_path.map{"(#{_1.start_line+1})"}.join('')}" if k.match?(key_path)
       end
     rescue YAML::SyntaxError
       # just skip files we can't parse
