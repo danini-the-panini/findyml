@@ -187,25 +187,40 @@ module Findyml
     invalid_key! if key.empty?
 
     case key
-    when /\A['"]/ # starts with quote
+    # starts with quote
+    when /\A['"]/
        # invalid unless rest has matching quote
       invalid_key! unless $' =~ /#{$&}/
 
+      # everything before the next matching quote (i.e. contents of quotes)
       quoted_key = $`
 
       case $'
+      # quote was at end of string
       when ''     then [quoted_key]
+
+      # dot follows quote, parse everything after the dot
       when /\A\./ then [quoted_key, *parse_key_parts($')]
+
+      # anything else after the quote is not allowed
       else invalid_key!
       end
-    when /\./ # includes a dot
+
+    # includes a dot
+    when /\./
+      # invalid unless something before the dot
       invalid_key! if $`.empty?
+
       k = $` == '*' ? :splat : $`
+
+      # parse everything after the dot
       [k, *parse_key_parts($')]
-    when '*'
-      [:splat]
-    else
-      [key]
+
+    # splat at the end of the string
+    when '*' then [:splat]
+
+    # single key query
+    else [key]
     end
   end
 
@@ -224,6 +239,7 @@ module Findyml
         return false if path.empty?
         path = []
       in [:splat, *partial]
+        return false if path.empty?
         rest = munch(path[1..], partial)
         return false unless rest
         path = rest

@@ -178,29 +178,33 @@ class TestFindyml < Minitest::Test
     assert_find_yaml '.in_another.file',    ['another_example.yml', 3], ['example.yml', 6]
     assert_find_yaml '.bar',                ['example.yml', 9], ['example.yml', 38], ['example.yml', 40]
     assert_find_yaml '.foo',                ['example.yml', 37], ['example.yml', 39]
-    assert_find_yaml '*.bar.baz',           ['example.yml', 14]
-    assert_find_yaml '*.in_another_file',   ['another_example.yml', 3], ['example.yml', 10]
-    assert_find_yaml '*.bar',               ['example.yml', 13], ['example.yml', 42], ['example.yml', 44]
-    assert_find_yaml '*.foo',               ['example.yml', 41], ['example.yml', 43]
+    assert_find_yaml '*.bar.baz',           ['example.yml', 10]
+    assert_find_yaml '*.in_another.file',   ['another_example.yml', 3], ['example.yml', 6]
+    assert_find_yaml '*.bar',               ['example.yml', 9], ['example.yml', 38], ['example.yml', 40]
+    assert_find_yaml '*.foo',               ['example.yml', 37], ['example.yml', 39]
 
-    assert_find_yaml 'foo.bar.',  ['example.yml', 13]
-    assert_find_yaml 'foo.bar.*', ['example.yml', 13]
+    assert_find_yaml 'foo.bar.',  ['example.yml', 10]
+    assert_find_yaml 'foo.bar.*', ['example.yml', 10]
 
-    assert_find_yaml '.bar.',   ['example.yml', 13]
-    assert_find_yaml '*.bar.*', ['example.yml', 13]
+    assert_find_yaml '.bar.',   ['example.yml', 10]
+    assert_find_yaml '*.bar.*', ['example.yml', 10]
 
-    assert_find_yaml 'foo.*.baz', ['example.yml', 14]
-    assert_find_yaml 'foo.*.bar', ['example.yml', 42], ['example.yml', 44]
+    assert_find_yaml 'foo.*.baz', ['example.yml', 10]
+    assert_find_yaml 'foo.*.bar', ['example.yml', 38], ['example.yml', 40]
 
-    assert_find_yaml '*.f.g.h',         ['example.yml', 82]
-    assert_find_yaml 'a.b.c.*.f.g.h',   ['example.yml', 82]
-    assert_find_yaml 'a.*.d.e.*.h',     ['example.yml', 82]
-    assert_find_yaml 'a.*.d.e.f.*',     ['example.yml', 80]
+    assert_find_yaml '*.f.g.h',         ['partial.yml', 8]
+    assert_find_yaml 'a.b.c.*.f.g.h',   ['partial.yml', 8]
+    assert_find_yaml 'a.*.d.e.*.h',     ['partial.yml', 8]
+    assert_find_yaml 'a.*.d.e.f.*',     ['partial.yml', 7], ['partial.yml', 8]
 
-    assert_find_yaml 'FOO.BAR.QUX.FOO.BAR.BAZ.QUX', ['example.yml', 90]
-    assert_find_yaml '*.BAR.BAZ.QUX',               ['example.yml', 90]
-    assert_find_yaml '*.BAR.BAZ.*',                 ['example.yml', 89]
-    assert_find_yaml '*.BAR.*',                     ['example.yml', 85], ['example.yml', 89]
+    assert_find_yaml 'FOO.BAR.QUX.FOO.BAR.BAZ.QUX', ['partial.yml', 16]
+    assert_find_yaml '*.BAR.BAZ.QUX',               ['partial.yml', 16]
+    assert_find_yaml '*.BAR.BAZ.*',                 ['partial.yml', 16]
+    assert_find_yaml '*.BAR.*',                     ['partial.yml', 12],
+                                                    ['partial.yml', 13],
+                                                    ['partial.yml', 14],
+                                                    ['partial.yml', 15],
+                                                    ['partial.yml', 16]
 
     refute_find_yaml '.another_top_level_key'
     refute_find_yaml 'foo.bar.baz.'
