@@ -7,16 +7,15 @@ require_relative "findyml/version"
 module Findyml
   class Error < StandardError; end
 
-  Key = Struct.new(:node, :path, :terminal, :alias_path) do
+  Key = Struct.new(:file, :node, :path, :terminal, :alias_path) do
     def terminal? = terminal
-
-    def match?(key_path)
-      # TODO: partial path(s)
-      key_path == path
-    end
 
     def line
       node.start_line + 1
+    end
+
+    def col
+      node.start_column + 1
     end
 
     def inspect
@@ -96,7 +95,7 @@ module Findyml
       nodes.each do |key_node, (children, yaml_node, alias_node)|
         new_path = [*path, key_node.to_s]
         new_alias_path = [*alias_path, *alias_node]
-        yield Key.new(key_node.node, new_path, children.nil?, new_alias_path)
+        yield Key.new(@file, key_node.node, new_path, children.nil?, new_alias_path)
         extract_nodes(children, new_path, new_alias_path, &block) if children
       end
     end
@@ -147,13 +146,15 @@ module Findyml
     end
   end
 
-  def self.find(key, dir = Dir.pwd)
+  def self.find(query_string, dir = Dir.pwd)
+    return to_enum(:find, query_string, dir) unless block_given?
+
     # TODO: cache fast key lookup in a temporary sqlite db?
-    key_path = parse_key(key)
+    query = parse_key(query_string)
     files = Dir.glob(File.join(dir, '**', '*.yml'))
     files.each do |file|
-      FileExtractor.call(file) do |k|
-        yield "#{file}:#{k.line}#{k.alias_path.map{"(#{_1.start_line+1})"}.join('')}" if k.match?(key_path)
+      FileExtractor.call(file) do |key|
+        yield key if key_match?(key.path, query)
       end
     rescue YAML::SyntaxError
       # just skip files we can't parse
@@ -162,16 +163,22 @@ module Findyml
     end
   end
 
+  def self.find_and_print(*args)
+    find(*args) do |key|
+      puts "#{key.file}:#{key.line}:#{key.col}#{key.alias_path.map{"(#{_1.start_line+1})"}.join('')}"
+    end
+  end
+
   def self.parse_key(key)
     pre  = []
     post = []
-    if key =~ /\A\./
-      key = $'
-      pre << :*
+    if key =~ /\A\./ # start with a dot
+      key = $' # everything after the dot
+      pre << :splat
     end
-    if key =~ /\.\z/
-      key = $`
-      post << :*
+    if key =~ /\.\z/ # end with a dot
+      key = $` # everything before the dot
+      post << :splat
     end
     [*pre, *parse_key_parts(key), *post]
   end
@@ -180,7 +187,8 @@ module Findyml
     invalid_key! if key.empty?
 
     case key
-    when /\A['"]/
+    when /\A['"]/ # starts with quote
+       # invalid unless rest has matching quote
       invalid_key! unless $' =~ /#{$&}/
 
       quoted_key = $`
@@ -190,10 +198,12 @@ module Findyml
       when /\A\./ then [quoted_key, *parse_key_parts($')]
       else invalid_key!
       end
-    when /\./
+    when /\./ # includes a dot
       invalid_key! if $`.empty?
-      k = $` == '*' ? :* : $`
+      k = $` == '*' ? :splat : $`
       [k, *parse_key_parts($')]
+    when '*'
+      [:splat]
     else
       [key]
     end
@@ -201,5 +211,37 @@ module Findyml
 
   def self.invalid_key!
     raise Error, "invalid key"
+  end
+
+  def self.key_match?(path, query)
+    path == query unless query.include? :splat
+
+    query_parts = query.slice_before(:splat)
+
+    query_parts.each do |q|
+      case q
+      in [:splat]
+        return false if path.empty?
+        path = []
+      in [:splat, *partial]
+        rest = munch(path[1..], partial)
+        return false unless rest
+        path = rest
+      else
+        return false unless path[0...q.size] == q
+        path = path.drop(q.size)
+      end
+    end
+
+    path.empty?
+  end
+
+  def self.munch(arr, part)
+    raise ArgumentError, "part must not be empty" if part.empty?
+    return if arr.empty?
+    return if arr.size < part.size
+    return arr[part.size..] if arr[0...part.size] == part
+
+    munch(arr[1..], part)
   end
 end

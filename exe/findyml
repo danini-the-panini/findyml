@@ -4,16 +4,14 @@
 require "bundler/setup"
 require "findyml"
 
-dir, key = case ARGV.size
+dir, query = case ARGV.size
 when 1
   [Dir.pwd, ARGV.last]
 when 2
   ARGV
 else
-  puts "Usage: #{$0} [path] key"
+  puts "Usage: #{$0} [path] query"
   exit(1)
 end
 
-Findyml.find(key, dir) do |file|
-  puts file
-end
+Findyml.find_and_print(query, dir)
