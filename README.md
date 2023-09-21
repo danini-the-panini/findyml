@@ -2,24 +2,51 @@
 
 Search for yaml keys across multiple files
 
-Even wondered where that i18n locale was defined but your project is massive and legacy and has multiple competing inconsistent standards of organisation? Let findyml ease your pain by finding that key for you!
+Ever wondered where that i18n locale was defined but your project is massive and legacy and has multiple competing inconsistent standards of organisation? Let findyml ease your pain by finding that key for you!
 
 ## Installation
 
-    $ gem install findyml
+```sh
+gem install findyml
+```
 
 ## Usage
 
 ```sh
-findyml [path] key
+findyml [path] query
 ```
+
+Outputs all matching keys across all `*.yml` files in the given directory, including line and column number.
+
+(Defaults to current directory if you don't specify a path)
 
 Example:
 
 ```sh
 findyml config/locales en.activerecord.attributes
-# config/locales/active_record.en.yml
+# config/locales/active_record.en.yml:3:6
 ```
+
+You can also do partial matches, by starting/ending with a dot or putting an asterisk (`*`) in place of a key.
+
+```sh
+findyml .activerecord.attributes
+findyml 'en.*.attributes'
+```
+
+(You have to quote the query if you use `*` because your shell might thing it is a dir glob)
+
+**NOTE**: if you end with a dot, or the last key is an asterisk, it will return _every single sub key_. i.e. careful if you try `findyml en.` or `findyml en.*`, you will get every line of every locale file 🙃.
+
+## TODO
+
+- Allow optional keys in query: `foo.[bar,baz].qux` (`qux` key in either `bar` or `baz` parent key)
+- Allow negated keys in query: `foo.!bar.baz` (`baz` with any parent but `bar`)
+- Partial key matches: `foo.bar_*` (any key starting with `bar_`)
+- Allow `*` and `**` like directory globbing.
+- Fuzzy matching?
+- Find and fix bugs
+- Optimisation, caching
 
 ## Development
 
