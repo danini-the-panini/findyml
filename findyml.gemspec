@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["code@danini.dev"]
 
   spec.summary = "Search for yaml keys across multiple files"
-  spec.description = "Even wondered where that i18n locale was defined but your project is massive and legacy and has multiple competing inconsistent standards of organisation? Let findyml ease your pain by finding that key for you!"
+  spec.description = "Ever wondered where that i18n locale was defined but your project is massive and legacy and has multiple competing inconsistent standards of organisation? Let findyml ease your pain by finding that key for you!"
   spec.homepage = "https://github.com/danini-the-panini/findyml"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
