@@ -84,6 +84,8 @@ module Findyml
     end
 
     def extract(&block)
+      return unless @yaml
+
       all_nodes = @yaml.children.map { construct_nodes(_1) }
 
       all_nodes.each do |nodes, _|
