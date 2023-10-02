@@ -34,9 +34,9 @@ findyml .activerecord.attributes
 findyml 'en.*.attributes'
 ```
 
-(You have to quote the query if you use `*` because your shell might thing it is a dir glob)
+(You have to quote the query if you use `*` because your shell will think it is a dir glob)
 
-**NOTE**: if you end with a dot, or the last key is an asterisk, it will return _every single sub key_. i.e. careful if you try `findyml en.` or `findyml en.*`, you will get every line of every locale file 🙃.
+**NOTE**: if you end with a dot, or the last key is an asterisk, it will return _every single sub key_. i.e. careful if you try `findyml en.` or `findyml en.*`, you will get every line of every english locale file 🙃.
 
 ## TODO
 
