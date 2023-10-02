@@ -146,6 +146,18 @@ module Findyml
     end
   end
 
+  def self.parse_options
+    case ARGV.size
+    when 1
+      [Dir.pwd, ARGV.last]
+    when 2
+      ARGV
+    else
+      puts "Usage: #{$0} [path] query"
+      exit(1)
+    end
+  end
+
   def self.find(query_string, dir = Dir.pwd)
     return to_enum(:find, query_string, dir) unless block_given?
 
